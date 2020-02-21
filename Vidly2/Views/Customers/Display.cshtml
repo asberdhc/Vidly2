@@ -1,0 +1,20 @@
+﻿@model Vidly.Models.Customer
+@{
+    ViewBag.Title = "Customers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="alert alert-dark">
+    <h1>@Model.Name</h1>
+    @if (Model.IsSubscribedToNewsletter)
+    {
+        <p>This client is subscribed for @Model.MembershipType.DurationInMonths</p>
+        <p>and has a discount of @Model.MembershipType.DiscountRate%</p>
+        <br />
+        if (Model.Birthday.HasValue)
+        {
+            <p>@Model.Birthday.Value.ToLongDateString()</p>
+        }
+    }
+</div>
+

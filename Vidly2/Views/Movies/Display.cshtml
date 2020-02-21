@@ -1,0 +1,18 @@
+﻿@model Vidly.Models.Movie
+@{
+    ViewBag.Title = "Display";
+    string existences = Model.NumberInStock + " consulted " + DateTime.Now.ToLongDateString();
+}
+
+<div class="card">
+    <!--<img src="..." class="card-img-top" alt="...">-->
+    <div class="card-body">
+        <h5 class="card-title">@Model.Name</h5>
+        <p class="card-text">
+            @Model.Genre.Name <br />
+            @Model.ReleaseDate.ToLongDateString() <br />
+            @Model.DateAdded.ToLongDateString()
+        </p>
+        <p class="card-text"><small class="text-muted">@existences</small></p>
+    </div>
+</div>
