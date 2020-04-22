@@ -26,8 +26,7 @@ namespace Vidly.Controllers
 
         public ActionResult Index()
         {
-            var customers = _context.Customers.Include(c => c.MembershipType).ToList();
-            return View(customers);
+            return View();
         }
 
         [Route("Customers/Display/{i:decimal}")]
@@ -54,6 +53,7 @@ namespace Vidly.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Save(Customer customer)
         {
             if (!ModelState.IsValid)

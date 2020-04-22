@@ -25,8 +25,13 @@ namespace Vidly.Controllers
             _context.Dispose();
         }
 
-        // GET: Movies/Random
-        public ActionResult Random()
+        /// <summary>
+        /// this method will be called when we entrer into movies
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="sortBy"></param>
+        /// <returns></returns>
+        public ActionResult Index()
         {
             var movies = _context.Movies.Include(m => m.Genre).ToList();
 
@@ -35,91 +40,45 @@ namespace Vidly.Controllers
                 Movies = movies
             };
             return View(viewModel);
-            //return Content(movie.Name);
-            //return HttpNotFound(movie.Name);
-            //return RedirectToAction("Index", "Home", new { page = 1, sortBy = "name"});
-
-            //return new EmptyResult();
         }
 
-        /// <summary>
-        /// method used to show how parameters works
-        /// 
-        /// note: the default parameter is located into RouteConfig.cs contained in App_Start folder
-        /// </summary>
-        /// <returns></returns>
-        public ActionResult DisplayDefaultParameter(int id)
+        [HttpGet]
+        public ActionResult New()
         {
-            return Content("id =" + id);
+            return View("MoviesForm", new MoviesFormViewModel { Genres = _context.Genres });
         }
 
-        /// <summary>
-        /// this method will be called when we entrer into movies
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="sortBy"></param>
-        /// <returns></returns>
-        public ActionResult Index(int? page, string sortBy)
-        {
-            if (!page.HasValue)
-                page = 1;
-            if (String.IsNullOrEmpty(sortBy))
-                sortBy = "name";
-
-            return Content(String.Format("PageIndex={0}&sortBy={1}", page, sortBy));
-        }
-
-        /// <summary>
-        /// the mapRout for this method is hard coding in RouteConfig
-        /// </summary>
-        /// <param name="year"></param>
-        /// <param name="month"></param>
-        /// <returns></returns>
-        public ActionResult ByReleaseDate(int year, int month)
-        {
-            return Content(year + "/" + month + "ReleaseBate");
-        }
-
-        /// <summary>
-        /// with the route parameters enabled in RouteConfig we can use the following atribute
-        /// to set the mapRoute the whole URL
-        /// </summary>
-        /// <param name="year"></param>
-        /// <param name="month"></param>
-        /// <returns></returns>
-        [Route("movies/released2/{year:int}/{month:regex(\\d{2})}")]
-        public ActionResult ByRelease(int year, int month)
-        {
-            return Content(year + "/" + month + "Released");
-        }
-
-        [Route("movies/display/{Id:decimal}")]
-        public ActionResult Display(int Id)
-        {
-            var movie = _context.Movies.Include(m => m.Genre).FirstOrDefault(m => m.Id == Id);
-
-            return View(movie);
-        }
-
+        [HttpGet]
         public ActionResult Edit(int Id)
         {
             var movie = _context.Movies.FirstOrDefault(m => m.Id == Id);
 
+            if (movie == null)
+                return HttpNotFound();
+
             var moviesFormViewModel = new MoviesFormViewModel
             {
-                Movie = movie,
+                Id = movie.Id,
+                Name = movie.Name,
+                GenreID = movie.GenreID,
+                NumberInStock = movie.NumberInStock,
+                DateAdded = movie.DateAdded,
+                ReleaseDate = movie.ReleaseDate,
                 Genres = _context.Genres
             };
-
-            if (movie == null)
-                new HttpNotFoundResult();
 
             return View("MoviesForm", moviesFormViewModel);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Save(Movie movie)
         {
+            if (!ModelState.IsValid)
+            {
+                return View("MoviesForm", new MoviesFormViewModel {  Genres = _context.Genres });
+            }
+
             if (movie.Id == 0)
                 _context.Movies.Add(movie);
             else
@@ -132,7 +91,7 @@ namespace Vidly.Controllers
             }
             _context.SaveChanges();
 
-            return RedirectToAction("Random", "Movies");
+            return RedirectToAction("Index", "Movies");
         }
     }
 }
