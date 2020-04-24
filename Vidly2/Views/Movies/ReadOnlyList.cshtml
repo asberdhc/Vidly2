@@ -1,0 +1,64 @@
+﻿@{
+    ViewBag.Title = "Movies";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Movies</h2>
+<table id="movies" class="table table-hover table-bordered">
+    <thead>
+        <tr class="info">
+            <th scope="col">Name</th>
+            <th scope="col">Genre</th>
+            <th scope="col">Release Date</th>
+            <th scope="col">Number In Stock</th>
+        </tr>
+    </thead>
+
+    <tbody></tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            //Create a new table with the response
+            var table = $("#movies").DataTable({
+                ajax: {
+                    url: "/api/movies",
+                    dataSrc: ""
+                },
+                columns: [
+                    {
+                        data: "name"
+                    },
+                    {
+                        data: "genre.name"
+                    },
+                    {
+                        data: "releaseDate"
+                    },
+                    {
+                        data: "numberInStock"
+                    }
+                ]
+            });
+
+            //add on click function for each button
+            $("#movies").on("click", ".js-delete", function () {
+                var button = $(this);
+
+                bootbox.confirm("Are you sure?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "/api/movies/" + button.attr("data-movie-id"),
+                            method: "DELETE",
+                            success: function () {
+                                table.row(button.parents("tr")).remove().draw();
+                            }
+                        })
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -26,7 +26,9 @@ namespace Vidly.Controllers
 
         public ActionResult Index()
         {
-            return View();
+            if(User.IsInRole(RoleName.TOTAL_CONTROL))
+                return View("List");
+            return View("ReadOnlyList");
         }
 
         [Route("Customers/Display/{i:decimal}")]
@@ -40,6 +42,8 @@ namespace Vidly.Controllers
         }
 
         [Route("Customers/new")]
+        [Authorize(Roles =
+            RoleName.TOTAL_CONTROL)]
         public ActionResult New()
         {
             var membershipTypes = _context.MembershipTypes.ToList();
@@ -54,6 +58,8 @@ namespace Vidly.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles =
+            RoleName.TOTAL_CONTROL)]
         public ActionResult Save(Customer customer)
         {
             if (!ModelState.IsValid)
@@ -81,6 +87,8 @@ namespace Vidly.Controllers
             return RedirectToAction("Index", "Customers");
         }
 
+        [Authorize(Roles =
+            RoleName.TOTAL_CONTROL)]
         public ActionResult Edit(int id)
         {
             var customer = _context.Customers.SingleOrDefault(c => c.Id == id);
